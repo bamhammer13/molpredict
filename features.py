@@ -6,7 +6,7 @@ from rdkit.DataStructs import ConvertToNumpyArray
 FP_SIZE = 2048
 _generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=FP_SIZE)
 
-# Turns a SMILES string and return its fingerprint as a NumPy array if it is valid
+# Turns a Simplified Molecular input Line Entry System(SMILES) string and return its fingerprint as a NumPy array if it is valid
 # Fingerprints are the numeric form of the molecule, which we need to compare with other molecules
 def smiles_to_fingerprint(smiles):
     mol = Chem.MolFromSmiles(smiles)
