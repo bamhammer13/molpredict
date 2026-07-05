@@ -3,8 +3,8 @@ from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator
 from rdkit.DataStructs import ConvertToNumpyArray
 
-FP_SIZE = 2048
-_generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=FP_SIZE)
+FP_SIZE = 2048 # The number of bits the fingerprints will be
+_generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=FP_SIZE) # Creates a Morgan Generator fingerprint generator
 
 # Turns a Simplified Molecular input Line Entry System(SMILES) string and return its fingerprint as a NumPy array if it is valid
 # Fingerprints are the numeric form of the molecule, which we need to compare with other molecules
@@ -13,10 +13,10 @@ def smiles_to_fingerprint(smiles):
     if mol is None:
         raise ValueError(f"Invalid SMILES: {smiles!r}") #Raises a ValueError that will be picked up in train.py, so it is skipped
     else:
-        fp = _generator.GetFingerprint(mol)
-        arr = np.zeros((FP_SIZE,), dtype=np.float32)
-        ConvertToNumpyArray(fp, arr)
-        return arr
+        fp = _generator.GetFingerprint(mol) # Creates a bit vector fingerprint of size fpSize
+        arr = np.zeros((FP_SIZE,), dtype=np.float32) # Makes an array of zero floats of size 2048
+        ConvertToNumpyArray(fp, arr) # Copies the fingerprint into the array
+        return arr # Returns the fingerprint array
 
 # Quick test of the function by testing to see if it converts the SMILES string for ethanol into its fingerprint
 # Should return ethanol fingerprint: shape (2048,) bits set 6
