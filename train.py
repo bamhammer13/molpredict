@@ -20,6 +20,7 @@ def load_dataset():
     y = np.array(y, dtype=np.float32).reshape(-1, 1)
     return X, y
 
+#Quick test of the function, showing what the data looks like after processing
 if __name__=="__main__":
     X, y = load_dataset()
     print("Loaded", len(X), "molecules")
