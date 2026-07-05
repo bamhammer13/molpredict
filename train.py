@@ -4,7 +4,7 @@ from features import smiles_to_fingerprint, FP_SIZE
 import torch
 # Imports PyTorch's neural network module as nn for convenience
 import torch.nn as nn
-
+from torch.utils.data import TensorDataset, DataLoader
 
 DATA_PATH = "data/esol.csv"
 SMILES_COL = "smiles"
@@ -51,6 +51,24 @@ class SolubilityNet(nn.Module):
     def forward(self, x):
         return self.net(x)
 
+def main():
+    torch.manual_seed(0) # Sets the seed for repeatable randomness in the shuffle later
+    X, y = load_dataset() # Loads in the dataset into X and y
+
+    idx = np.random.RandomState(0).permutation(len(X)) # Shuffles the row order for fair distribution
+    split = int(0.8 * len(X)) # Sets the split of training molecules to validation molecules at 80 to 20
+    tr, va = idx[:split], idx[split:] # Splits the data into training and validation lists on the split
+
+    Xtr, ytr = torch.tensor(X[tr]), torch.tensor(y[tr]) # Creates the training input and target tensors
+    Xva, yva = torch.tensor(X[va]), torch.tensor(y[va]) # Creates the validation input and target tensors
+
+    loader = DataLoader(TensorDataset(Xtr, ytr), batch_size=32, shuffle=True) # Divides data into shuffled batches of 32
+
+    print("training molecules:", len(Xtr), " | validation molecultes: ", len(Xva))
+    xb, yb = next(iter(loader))
+    print("one batch - X:", xb.shape, "y", yb.shape)
+
+
 # Test code for the parts of train.py
 if __name__=="__main__":
     # Quick test of load dataset, showing what the data looks like after processing
@@ -63,3 +81,5 @@ if __name__=="__main__":
     dummy = torch.tensor(X[:4]) # Uses the first 4 fingerprints
     out = model(dummy)
     print("Shape of model's output: ", out.shape) # Should be: "Shape of model's output:  torch.Size([4, 1])"
+
+    main()
