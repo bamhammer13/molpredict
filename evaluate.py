@@ -33,7 +33,7 @@ def main():
     print(f"Validation molecules: {len(Xva)}")
     print(f"Model RMSE: {rmse:.3f} logS")
     print(f"Baseline RMSE: {baseline_rmse:.3f} logS -- This will guess the average")
-    print(f"R^2: {r2:.3f} (1.0 = perfect, 0.0 = same as average)") # Prints out the R-squared, I got 0.713 in my run
+    print(f"R^2: {r2:.3f} (1.0 = perfect, 0.0 = same as average)") # Prints out the R-squared
 
 if __name__ == "__main__":
     main()
