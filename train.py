@@ -64,22 +64,36 @@ def main():
 
     loader = DataLoader(TensorDataset(Xtr, ytr), batch_size=32, shuffle=True) # Divides data into shuffled batches of 32
 
-    print("training molecules:", len(Xtr), " | validation molecultes: ", len(Xva))
+    # print statements to verify split and batching worked
+    print("training molecules:", len(Xtr), " | validation molecules: ", len(Xva))
     xb, yb = next(iter(loader))
     print("one batch - X:", xb.shape, "y", yb.shape)
 
+    model = SolubilityNet() # Creates an instance of SolubilityNet
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3) # Creates an Adam optimizer
+    loss_fn = nn.MSELoss() # Creates a loss function
+
+    # Runs 50 passes over the data
+    for epoch in range(1, 51):
+        model.train() # Sets the model into training mode, enabling dropout
+        for xb, yb in loader: # Loops through the batches
+            optimizer.zero_grad() # Clears old gradients
+            loss = loss_fn(model(xb), yb) # Produces a prediction and calculates how wrong it was
+            loss.backward() # Computes gradients for the weights
+            optimizer.step() # Shifts weights to decrease loss
+
+        # Shows progresss every 10 epochs
+        if epoch % 10 == 0:
+            model.eval() # Sets the model into evaluation mode, disabling dropout
+
+            #Calculates Root Mean Squared Error, uses no_grad to skip gradient tracking since we're only lookingw
+            with torch.no_grad(): 
+                tr_rmse = torch.sqrt(loss_fn(model(Xtr),  ytr)).item()
+                va_rmse = torch.sqrt(loss_fn(model(Xva),  yva)).item()
+            print(f"epoch {epoch:3d}    train RMSE {tr_rmse:.3f}    val RMSE {va_rmse:.3f}")
+    torch.save(model.state_dict(), "model.pt") # Saves the model to model.pt
+    print("Saved trained model to model.pt")
 
 # Test code for the parts of train.py
 if __name__=="__main__":
-    # Quick test of load dataset, showing what the data looks like after processing
-    X, y = load_dataset()
-    print("Loaded", len(X), "molecules")
-    print("X shape:", X.shape, "| y shape:", y.shape)
-
-    # Quick test running a fingerprint through an untrained dummy model and checking the shape of the output
-    model = SolubilityNet()
-    dummy = torch.tensor(X[:4]) # Uses the first 4 fingerprints
-    out = model(dummy)
-    print("Shape of model's output: ", out.shape) # Should be: "Shape of model's output:  torch.Size([4, 1])"
-
     main()
