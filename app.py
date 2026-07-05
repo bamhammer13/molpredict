@@ -1,6 +1,10 @@
 from predict import predict
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse
+
 
 app = FastAPI() # Creates the FastAPI instance that will be the basis for the code
 
@@ -18,4 +22,11 @@ def predict_endpoint(request: MoleculeRequest):
 @app.get("/healthz")
 def health():
     return {"status": "ok"} # If asked for status will say ok, if it doesn't answer that's when you know you got a problem
+
+app.mount("/static", StaticFiles(directory="static"), name="static") # Makes the contents of the static/ folder reachable
+
+# The main web page at root URL
+@app.get("/")
+def index():
+    return FileResponse("static/index.html")
 
