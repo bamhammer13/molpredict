@@ -3,14 +3,37 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from fastapi.responses import FileResponse
+from redis import Redis
+from rq import Queue
+from rq.job import Job
+from worker import predict_batch
+
 
 
 app = FastAPI() # Creates the FastAPI instance that will be the basis for the code
 
-# Defines the request shape
+redis_conn = Redis() # Creates the Remote Dictionary Server(REDIS) connection
+queue = Queue(connection=redis_conn) # Creates the job queue
+
+# Defines the request shape for requesting a batch of predictions
+class BatchRequest(BaseModel):
+    smiles_list: list[str]
+
+# Defines the request shape for singular molecules
 class MoleculeRequest(BaseModel):
     smiles: str # The JSON given a field name of smiles, it will take in a molecule value
+
+# Defines the endpoint for adding batch jobs
+@app.post("/predict/batch")
+def predict_batch_endpoint(request: BatchRequest):
+    job = queue.enqueue(predict_batch, request.smiles_list, result__ttl=86400) # Creates the job of doing the batch of prediction and adds it to the queue, results last 24hrs
+    return {"job_id": job.id, "status": job.get_status()} # Returns the job's id and status for reference
+
+# Defines the endpoint for getting the status of a job
+@app.get("/jobs/{job_id}")
+def get_job(job_id: str):
+    job = Job.fetch(job_id, connection=redis_conn)
+    return{"job_id": job.id, "status": job.get_status(), "result": job.result}
 
 # Defines the /predict endpoint, that runs the predict function and returns the result
 @app.post("/predict") 
