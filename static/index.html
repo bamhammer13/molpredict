@@ -6,10 +6,10 @@
 <body>
     <h1>MolPredict</h1>
     <p>Enter a molecule in Simplified Molecular Input Line Entry System(SMILES) Format</p>
-
-    <input id="smiles-input" type="text" placeholder="e.g. CCO"/>
-    <button onclick="runPrediction()">predict</button>
-
+    <form id="predict-form">
+        <input id="smiles-input" type="text" placeholder="e.g. CCO"/>
+        <button type=:"submit">Predict</button>
+    </form>
     <p id="result"></p>
 
     <script src="/static/app.js"></script>

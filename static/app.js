@@ -29,3 +29,9 @@ async function runPrediction() { // Function used by the html to get the predict
         resultEl.textContent = "Couldn't reach prediction service. Please check connection and try again"; // Gives something the user could do to try and fix problem
     }
 }
+
+// Runs prediction on any form submittion whether button press or Enter key
+document.getElementById("predict-form").addEventListener("submit", function(event){
+    event.preventDefault(); // stops browser refresh
+    runPrediction();
+});
