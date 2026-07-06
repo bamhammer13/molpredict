@@ -1,5 +1,5 @@
 from predict import predict
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -15,7 +15,11 @@ class MoleculeRequest(BaseModel):
 # Defines the /predict endpoint, that runs the predict function and returns the result
 @app.post("/predict") 
 def predict_endpoint(request: MoleculeRequest):
-    logS = predict(request.smiles)
+    # Tries to use the request's SMILES string, if invalid sends a 400, Bad Request, error with a message
+    try:
+        logS = predict(request.smiles)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid SMILES: {request.smiles}")
     return {"smiles": request.smiles, "logS": logS}
 
 # Simple health checking endpoint, just to check if the server is actually alive
