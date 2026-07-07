@@ -1,0 +1,29 @@
+name: CI
+
+on: push # Runs on push
+
+jobs:
+  test: # The only job, Test
+    runs-on: ubuntu-latest # Runs it on a virtual Linux Ubuntu machine
+
+    steps:
+      # Step 1: Copies the repository code onto the machine
+      - uses: actions/checkout@v4
+
+      # Step 2: Installs Python 3.11 on the runner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # Step 3: Installs the dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      # Step 4: trains the model
+      - name: Train model
+        run: python train.py
+
+      # Step 5: runs tests
+      - name: Run tests
+        run: pytest

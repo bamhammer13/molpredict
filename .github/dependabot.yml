@@ -1,0 +1,14 @@
+version: 2
+# Configures dependabot to watch dependencies and make update pull requests
+updates:
+  # Watches for newer versions of the GitHub actions used 
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Watches for newer versions of the Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
