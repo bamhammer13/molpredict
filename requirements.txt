@@ -26,7 +26,7 @@ pydantic==2.13.4
 pydantic_core==2.46.4
 Pygments==2.20.0
 python-dateutil==2.9.0.post0
-rdkit==2025.9.3
+rdkit==2026.3.3
 redis==8.0.1
 rq==2.10.0
 scikit-learn==1.9.0
