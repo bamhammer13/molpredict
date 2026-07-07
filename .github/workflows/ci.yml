@@ -8,7 +8,7 @@ jobs:
 
     steps:
       # Step 1: Copies the repository code onto the machine
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Step 2: Installs Python 3.11 on the runner
       - uses: actions/setup-python@v5
