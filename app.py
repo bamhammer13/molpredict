@@ -7,12 +7,13 @@ from redis import Redis
 from rq import Queue
 from rq.job import Job
 from worker import predict_batch
-
+import os
 
 
 app = FastAPI() # Creates the FastAPI instance that will be the basis for the code
 
-redis_conn = Redis() # Creates the Remote Dictionary Server(REDIS) connection
+redis_host = os.environ.get("REDIS_HOST", "localhost") # Gets the enivronment's REDIS host
+redis_conn = Redis(host=redis_host, port=6379) # Creates the Remote Dictionary Server(REDIS) connection
 queue = Queue(connection=redis_conn) # Creates the job queue
 
 # Defines the request shape for requesting a batch of predictions
@@ -26,7 +27,7 @@ class MoleculeRequest(BaseModel):
 # Defines the endpoint for adding batch jobs
 @app.post("/predict/batch")
 def predict_batch_endpoint(request: BatchRequest):
-    job = queue.enqueue(predict_batch, request.smiles_list, result__ttl=86400) # Creates the job of doing the batch of prediction and adds it to the queue, results last 24hrs
+    job = queue.enqueue(predict_batch, request.smiles_list, result_ttl=86400) # Creates the job of doing the batch of prediction and adds it to the queue, results last 24hrs
     return {"job_id": job.id, "status": job.get_status()} # Returns the job's id and status for reference
 
 # Defines the endpoint for getting the status of a job

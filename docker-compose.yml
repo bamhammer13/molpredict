@@ -1,0 +1,21 @@
+# Declares all services, so they work together in a shared network as containers
+services:
+  redis:
+    image: redis:8 # Uses redis version 8
+
+  # Runs Dockerfile's default command, uvicorn, which is app.py
+  api:
+    build: .
+    ports:
+      - "8000:8000" # Computer reaches this on port 8000, Container listens on port 8000 
+    environment:
+      - REDIS_HOST=redis # The app will find Redis at, fittingly, redis
+    depends_on:
+      - redis # Starts up redis before booting up the api
+  
+  # Using same image as api, overiding default command(uvicorn) to run RQ worker
+  worker:
+    build: .
+    command: rq worker --url redis://redis:6379
+    depends_on:
+      - redis
