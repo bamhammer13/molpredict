@@ -15,8 +15,11 @@ spec:
     spec:
       containers:
         - name: api
-          image: molpredict:latest
+          image: molpredict:v2
           imagePullPolicy: IfNotPresent # Use loaded image
+          env:
+            - name: REDIS_HOST
+              value: redis
           ports:
             - containerPort: 8000
 
