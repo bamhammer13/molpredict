@@ -1,6 +1,7 @@
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator
+from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.DataStructs import ConvertToNumpyArray
 
 FP_SIZE = 2048 # The number of bits the fingerprints will be
@@ -17,9 +18,20 @@ def smiles_to_fingerprint(smiles):
         arr = np.zeros((FP_SIZE,), dtype=np.float32) # Makes an array of zero floats of size 2048
         ConvertToNumpyArray(fp, arr) # Copies the fingerprint into the array
         return arr # Returns the fingerprint array
+    
+
+def draw_molecule(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError(f"Invalid SMILES: {smiles!r}")
+    drawer = rdMolDraw2D.MolDraw2DSVG(300, 300) # 300x300 SVG Canvas
+    drawer.DrawMolecule(mol) # Draws molecule on canvas
+    drawer.FinishDrawing()
+    return drawer.GetDrawingText() # Returns the SVG as a string
 
 # Quick test of the function by testing to see if it converts the SMILES string for ethanol into its fingerprint
 # Should return ethanol fingerprint: shape (2048,) bits set 6
 if __name__ == "__main__":
     fp = smiles_to_fingerprint("CCO")
     print("ethanol fingerprint: shape", fp.shape, "bits set", int(fp.sum()))
+

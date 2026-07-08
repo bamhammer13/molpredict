@@ -9,6 +9,8 @@ from rq.job import Job
 from worker import predict_batch
 import os
 from prometheus_fastapi_instrumentator import Instrumentator
+from fastapi import Response
+from features import draw_molecule
 
 app = FastAPI() # Creates the FastAPI instance that will be the basis for the code
 
@@ -57,5 +59,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static") # Makes the
 @app.get("/")
 def index():
     return FileResponse("static/index.html")
+
+@app.get("/draw")
+def draw_endpoint(smiles: str):
+    # Tries to get a drawing of the given SMILES
+    try:
+        svg = draw_molecule(smiles)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid SMILES: {smiles}")
+    return Response(content=svg, media_type="image/svg+xml")
 
 Instrumentator().instrument(app).expose(app) # Hooks into app to measure and serve requests
