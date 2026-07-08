@@ -6,6 +6,13 @@ WORKDIR /app
 
 # Copies the requirements needed
 COPY requirements.txt .
+
+# OS level graphics required for RDKit's drawing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+          libxrender1 libxext6 libsm6 libexpat1 \
+      && rm -rf /var/lib/apt/lists/*
+
+
 # Installs the requirements, so Docker caches the install layer
 RUN pip install --no-cache-dir -r requirements.txt
 
