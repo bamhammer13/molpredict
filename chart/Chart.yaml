@@ -1,0 +1,5 @@
+apiVersion: v2
+name: molpredict
+description: Molecular solubility prediction service (API + worker + Redis)
+version: 0.1.0
+appVersion: "v7"

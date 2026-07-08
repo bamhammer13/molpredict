@@ -1,0 +1,23 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: molpredict-api
+spec:
+  replicas: {{ .Values.api.replicas }}          # ← was 1
+  selector:
+    matchLabels:
+      app: molpredict-api
+  template:
+    metadata:
+      labels:
+        app: molpredict-api
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"   # ← was molpredict:v7
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: REDIS_HOST
+              value: redis
+          ports:
+            - containerPort: 8000

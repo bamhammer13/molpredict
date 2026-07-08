@@ -1,0 +1,18 @@
+# molpredict image, shared by the api and worker
+image:
+  repository: molpredict
+  tag: v7
+  pullPolicy: IfNotPresent
+
+api:
+  replicas: 1
+  service:
+    type: NodePort
+    port: 8000
+
+worker:
+  replicas: 1
+
+redis:
+  image: redis:8
+  port: 6379
