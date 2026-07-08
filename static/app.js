@@ -23,6 +23,18 @@ async function runPrediction() { // Function used by the html to get the predict
 
         const data = await response.json(); // Turns the JSON response into a JS object, uses await to let other things happen while waiting
         resultEl.textContent = `Predicted logS: ${data.logS.toFixed(3)} (higher means more soluble in water)`; // Puts the results on screen
+
+        const measuredEl = document.getElementById("measured");
+        if(data.measured){
+            const note = data.measured.in_training
+                ? "Model was trained on this molecule"
+                : "Used in validation, not trained on";
+            measuredEl.textContent =`Measured logS: ${data.measured.measured.toFixed(3)} (${note})`;
+        }
+        else{
+            measuredEl.textContent = "Not in dataset";
+        }
+
         const molImg = document.getElementById("mol-img");
         molImg.src = `/draw?smiles=${encodeURIComponent(smiles)}`; // Uses encodeURIComponent to escape special characters that may appear in SMILES
 

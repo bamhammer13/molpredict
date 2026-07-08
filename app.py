@@ -11,6 +11,7 @@ import os
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi import Response
 from features import draw_molecule
+from measured import get_measured
 
 app = FastAPI() # Creates the FastAPI instance that will be the basis for the code
 
@@ -46,7 +47,8 @@ def predict_endpoint(request: MoleculeRequest):
         logS = predict(request.smiles)
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Invalid SMILES: {request.smiles}")
-    return {"smiles": request.smiles, "logS": logS}
+    measured = get_measured(request.smiles)
+    return {"smiles": request.smiles, "logS": logS, "measured": measured} # Measured is null if not in data set
 
 # Simple health checking endpoint, just to check if the server is actually alive
 @app.get("/healthz")
