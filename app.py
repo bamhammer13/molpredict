@@ -8,7 +8,7 @@ from rq import Queue
 from rq.job import Job
 from worker import predict_batch
 import os
-
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI() # Creates the FastAPI instance that will be the basis for the code
 
@@ -58,3 +58,4 @@ app.mount("/static", StaticFiles(directory="static"), name="static") # Makes the
 def index():
     return FileResponse("static/index.html")
 
+Instrumentator().instrument(app).expose(app) # Hooks into app to measure and serve requests

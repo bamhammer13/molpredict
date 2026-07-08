@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: molpredict:v2
+          image: molpredict:v3
           imagePullPolicy: IfNotPresent # Use loaded image
           env:
             - name: REDIS_HOST
