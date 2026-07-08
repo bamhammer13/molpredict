@@ -1,7 +1,7 @@
  # MolPredict
 
   Predicts the **aqueous solubility (logS)** of small molecules from their SMILES string — a PyTorch model wrapped in
-  a REST API, a web UI, an async batch queue, and deployed on Kubernetes with monitoring.
+  a REST API, a web UI, an async batch queue, and deployed on Kubernetes — locally and on AWS EKS — with monitoring.
 
   > Built as an end-to-end machine-learning systems project: from featurizing molecules to serving predictions in a
   containerized, observable microservice.
@@ -44,7 +44,7 @@
      ▼                            │
   Redis queue ──────► RQ worker (worker.py) ──────────┘
 
-  Packaging:     Docker · docker-compose · Kubernetes (k8s/)
+  Packaging:     Docker · Helm chart · Kubernetes — local (minikube) and AWS EKS
   Observability: /metrics ──► Prometheus ──► Grafana
   ```
 
@@ -52,7 +52,7 @@
   
   **ML:** PyTorch · RDKit · NumPy · pandas
   **Service:** FastAPI · Redis + RQ (async jobs) · vanilla JS front-end
-  **Infra:** Docker · docker-compose · Kubernetes (minikube)
+  **Infra:** Docker · Helm · Kubernetes (minikube + AWS EKS) · Amazon ECR · docker-compose
   **Ops:** Prometheus + Grafana · pytest · GitHub Actions CI · Dependabot
 
   ## The model
@@ -133,6 +133,30 @@
   > **Note:** batch predictions need the worker running. If single predictions work but batches hang, a worker (or
   Redis) isn't up.
 
+  ## Deployment
+
+  Packaged as a **Helm chart** (`chart/`) and deployed both locally on **minikube** and to **AWS EKS**.
+
+  ### Helm
+
+  ```bash
+  helm install molpredict ./chart
+  helm upgrade molpredict ./chart --set api.replicas=2   # scale via values, no YAML edits
+  helm rollback molpredict 1                             # revert a release
+  ```
+
+  <p align="center">
+    <img src="docs/helm-release.png" alt="helm history showing the molpredict release lifecycle: install then upgrade" width="700">
+  </p>
+
+  ### AWS EKS
+
+  Image published to **Amazon ECR**, cluster provisioned with `eksctl`, and the API exposed publicly through an **AWS LoadBalancer**.
+
+  <p align="center">
+    <img src="docs/aws-eks.png" alt="MolPredict running on AWS EKS, served through an Elastic Load Balancer" width="700">
+  </p>
+
   ## Testing
   
   ```bash
@@ -169,8 +193,7 @@
   - Trained only on ESOL — a small, single-source dataset; more functional solubility models would use far more data and richer
   descriptors.
   - MLP is a solid baseline, not a state-of-the-art (e.g. graph neural network) architecture.
-  - Not production-hardened: no authentication, only a single pod, the model can only be retrained with a redeploy of the entire image.
+  - Not production-hardened: no authentication, a single replica by default (scalable via Helm), and the model can only be retrained with a redeploy of the entire image.
 
   Built as a learning project to practice the full lifecycle of a machine-learning service.
-  ```
 
